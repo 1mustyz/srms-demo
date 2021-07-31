@@ -3,6 +3,13 @@ const TermSetter = require('../models/TermSetter')
 const multer = require('multer');
 const {singleFileUpload} = require('../middlewares/filesMiddleware');
 const Staff = require('../models/Staff');
+const cloudinary = require('cloudinary');
+
+cloudinary.config({
+    cloud_name: 'mustyz',
+    api_key: '727865786596545',
+    api_secret: 'HpUmMxoW8BkmIRDWq_g2-5J2mD8'
+})
 
 exports.createAssignmentText = async (req,res,next) => {
     const {username,staffId,firstName,lastName,className,category,head,text,subject} = req.body
@@ -28,7 +35,7 @@ exports.createAssignmentText = async (req,res,next) => {
 
 exports.createAssignmentFile = async (req,res,next) => {
     
-    // console.log(req.files.file)
+    // console.log(req.files)
     singleFileUpload(req, res, async function(err) {
         if (err instanceof multer.MulterError) {
         return res.json(err.message);
@@ -40,11 +47,21 @@ exports.createAssignmentFile = async (req,res,next) => {
           return res.json({"file": req.file, "msg":'Please select file to upload'});
         }
         if(req.file){
-          const result =  await Assignment.collection.insertOne({file: req.file.path})
-            return  res.json({success: true,
-            message: result },
-            
-        );
+            console.log(req.file.path)
+            cloudinary.v2.uploader.upload(req.file.path, 
+                { resource_type: "raw" }, 
+            async function(error, result) {
+                console.log(result, error); 
+
+                const upResult =  await Assignment.collection.insertOne({file: result.url})
+                return  res.json({success: true,
+                message: upResult },
+                
+                
+            );
+                });
+  
+         
         }
         }); 
 } 

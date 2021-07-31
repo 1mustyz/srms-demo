@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const staffController = require('../controller/staffController');
 const logoutController = require('../controller/logoutController')
-const { isLoggedIn } = require('../middlewares/auth');
+const { isStaffLoggedIn } = require('../middlewares/auth');
 
 
  router.post('/login', staffController.loginStaff)

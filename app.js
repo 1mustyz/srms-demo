@@ -7,7 +7,9 @@ const mongoose = require('mongoose')
 const passport = require('passport')
 const expressSession = require('express-session')
 const MongoStore = require('connect-mongo')
-const cors = require('cors');
+const cors = require('cors')
+const Staff = require('./models/Staff')
+const Student = require('./models/Student')
 // const multipart = require('connect-multiparty');
 // global.app = module.exports = express();
 
@@ -21,7 +23,7 @@ var app = express();
 app.use(expressSession({
   secret: '[credentials.secret]',
   store: MongoStore.create({
-    mongoUrl: 'mongodb+srv://1mustyz:z08135696959@project1.ynhhl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+    mongoUrl: 'mongodb+srv://niaportal:nia@2020@cluster0.ehoaz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
     ttl: 14 * 24 * 60 * 60,
     autoRemove: 'native',
   }),
@@ -29,8 +31,6 @@ app.use(expressSession({
   resave: true
 }))
 
-const Staff = require('./models/Staff')
-const Student = require('./models/Student')
 const studentRouter = require('./routes/studentRoute')
 const staffRouter = require('./routes/staffRoute')
 const adminRouter = require('./routes/AdminRoute')
@@ -39,7 +39,7 @@ const teacherRouter = require('./routes/teacherRoute')
 // mongodb://localhost:27017/newsrms
 
 // //connect to db
-mongoose.connect('mongodb+srv://1mustyz:z08135696959@project1.ynhhl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
+mongoose.connect('mongodb+srv://niaportal:nia@2020@cluster0.ehoaz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true
@@ -80,8 +80,24 @@ app.use(passport.session())
 passport.use('staff', Staff.createStrategy())
 passport.use('student', Student.createStrategy())
 
-passport.serializeUser(Staff.serializeUser())
-passport.deserializeUser(Student.deserializeUser())
+passport.serializeUser(function(user, done) {
+  var key = {
+    id: user.id,
+    type: user.userType
+  }
+  done(null, key);
+})
+
+passport.deserializeUser(function(key, done) {
+  key.type === 'staff' 
+  ? Staff.findById(key.id, function(err, user) {
+    done(err, user)
+  }) 
+  : Student.findById(key.id, function(err, user) {
+    done(err, user)
+  }) 
+
+})
 
 app.use('/staff', staffRouter)
 app.use('/student', studentRouter)

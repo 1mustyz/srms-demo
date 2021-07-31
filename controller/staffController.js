@@ -6,7 +6,7 @@ const {singleUpload} = require('../middlewares/filesMiddleware');
 const mongoose = require('mongoose')
 // const connectEnsureLogin = require('connect-ensure-login')
 
-
+// staff registration controller
 exports.registerStaff = async (req, res, next) => {
     try {
 
@@ -22,7 +22,7 @@ exports.registerStaff = async (req, res, next) => {
       res.json({ success: false, error })
     }
   }
-
+// staff login controller
 exports.loginStaff = (req, res, next) => {
 
     // perform authentication
@@ -35,14 +35,16 @@ exports.loginStaff = (req, res, next) => {
         })
       //login the user  
       req.login(user, (error) => {
-        if (error)
+        if (error){
           res.json({ success: false, message: 'something went wrong pls try again' })
-        req.session.user = user
-        res.json({ success: true, message: 'staff login successful', user })
+        }else {
+          req.session.user = user
+          res.json({ success: true, message: 'staff login successful', user})
+        }
       })
     })(req, res, next)
   }
-
+// reset password by staff
 exports.resetPassword = async (req, res, next) => {
   try {
     const user = await Staff.findById(req.params.id)
@@ -53,7 +55,17 @@ exports.resetPassword = async (req, res, next) => {
       res.json({ message: 'something went wrong', error })
   }
 }
-
+// reset password for staff by admin
+exports.adminResetStaffPassword = async (req, res, next) => {
+  try {
+    const user = await Staff.findById(req.params.id)
+    await user.setPassword('password')
+    await user.save()
+    res.json({message: 'password reset successful', user})
+  } catch (error) {
+      res.json({ message: 'something went wrong', error })
+  }
+}
 exports.findAllStaff = async (req,res, next) => {
 
   const result = await Staff.find({});

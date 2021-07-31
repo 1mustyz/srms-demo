@@ -2,7 +2,7 @@ const router = require('express').Router();
 const staffController = require('../controller/staffController');
 const logoutController = require('../controller/logoutController')
 const paymentController = require('../controller/paymentController');
-const { isLoggedIn } = require('../middlewares/auth');
+const { isStaffLoggedIn } = require('../middlewares/auth');
 const studentController = require('../controller/studentController')
 const curriculumController = require('../controller/curriculumController');
 const subjectController = require('../controller/subjectController');
@@ -19,10 +19,12 @@ router.post('/register-student', idGenerator.studentIdGenerator, studentControll
 
 router.post('/login', staffController.loginStaff)
 router.post('/change-password/:id', staffController.resetPassword)
+router.post('/reset-student-password/:id', studentController.adminResetStudentPassword)
+router.post('/reset-staff-password/:id', staffController.adminResetStaffPassword)
 router.post('/logout', logoutController.logout)
 router.post('/add-payment', paymentController.addPaymentTypes)
 router.post('/add-curriculum', curriculumController.create)
-router.post('/create-subject', subjectController.create)
+router.post('/create-subject',  subjectController.create)
 router.post('/create-class', classController.create)
 router.post('/verify-payment', paymentController.verifyPayment);
 router.post('/set-new-term',termSetterController.setNewTerm)
@@ -47,6 +49,7 @@ router.put('/edit-staff', staffController.editStaff)
 router.put('/edit-student', studentController.editStudent)
 router.put('/final-submission', teacherController.finalSubmision)
 router.put('/allow-submission-priviledge', examOfficerController.allowPriviledge)
+router.put('/suspend-a-student', studentController.suspendAstudent);
 
 
 router.get('/get-all-curriculum', curriculumController.getAllCurriculum)

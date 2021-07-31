@@ -12,10 +12,12 @@ const Payment = require('../models/Payment');
 const Assignment = require('../models/Assignment');
 // const connectEnsureLogin = require('connect-ensure-login')
 
+// student registration controller
 exports.registerStudent = async function (req, res, next) {
   try {
-    //create the user instance
+    // fetch current term and session
     const termAndSession = await TermSetter.find({},{termNumber: 1, session: 1})
+    // extract class number from current class
     if (req.body.currentClass !== 'Daycare' && req.body.currentClass !== 'Playclass'){
 
       const classNumber = req.body.currentClass.split('')
@@ -112,7 +114,7 @@ exports.registerStudent = async function (req, res, next) {
     res.json({ success: false, error })
   }
 }
-
+// student login controller
 exports.loginStudent = (req, res, next) => {
 
   // perform authentication
@@ -157,11 +159,22 @@ exports.setProfilePic = async (req,res, next) => {
     });          
   
 }
-
+// reset password by parent / student
 exports.resetPassword = async (req, res, next) => {
   try {
     const user = await Student.findById(req.params.id)
     await user.changePassword(req.body.oldPassword, req.body.newPassword)
+    await user.save()
+    res.json({user})
+  } catch (error) {
+      res.json({ message: 'something went wrong', error })
+  }
+}
+// reset password for student by admin
+exports.adminResetStudentPassword = async (req, res, next) => {
+  try {
+    const user = await Student.findById(req.params.id)
+    await user.setPassword('password')
     await user.save()
     res.json({user})
   } catch (error) {
@@ -326,4 +339,11 @@ exports.getAllStudentAssignment = async (req,res,next) => {
     session: termAndSession[0].session.year
     })
   res.json({success: true, result})
+}
+
+exports.suspendAstudent = async (req,res,next) => {
+  const {username, suspend} = req.query
+
+  await Student.findOneAndUpdate({username},{$set:{suspend}})
+  res.json({success: true, suspend})
 }

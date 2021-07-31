@@ -27,7 +27,9 @@ exports.studentIdGenerator = async (req,res,next) => {
     const d = new Date()
     const getStudent = await Student.find()
     // 2. if no staff first id is admin
-    if (getStudent.length < 1) req.body.username = `NIA/STUDENT/${d.getFullYear()}/001`
+    const fullYear = d.getFullYear().toString().split('')
+    const splitYear = `${fullYear[2]}${fullYear[3]}`
+    if (getStudent.length < 1) req.body.username = `NIA/${splitYear}/001`
     else{
         // 3. if there are staffs get the last id and icrement by one
         const lastStudent = await Student.find().sort({createdAt: -1}).limit(1)
@@ -35,11 +37,14 @@ exports.studentIdGenerator = async (req,res,next) => {
         let zeros
         const id = lastStudent[0].username.split('/')
         // console.log(id[3],zeros)
+
+        const fullYear = d.getFullYear().toString().split('')
+        const splitYear = `${fullYear[2]}${fullYear[3]}`
         
-        req.body.username = `NIA/STUDENT/${d.getFullYear()}/${zeros = id[3] < 10  && parseInt(id[3]) + 1 < 10 ? '00': id[3] >= 99 ? '':'0'}${parseInt(id[3]) + 1 }`
+        req.body.username = `NIA/${splitYear}/${zeros = id[2] < 10  && parseInt(id[2]) + 1 < 10 ? '00': id[2] >= 99 ? '':'0'}${parseInt(id[2]) + 1 }`
     }
-    
     console.log(req.body.username)  
+    
 
     // 4. then insert the new id
     next()
