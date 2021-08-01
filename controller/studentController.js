@@ -10,6 +10,7 @@ const Cognitive = require('../models/Cognigtive');
 const TermResult = require('../models/TermResult');
 const Payment = require('../models/Payment');
 const Assignment = require('../models/Assignment');
+const SessionResult = require('../models/SessionResult')
 // const connectEnsureLogin = require('connect-ensure-login')
 
 // student registration controller
@@ -243,8 +244,13 @@ exports.findOneStudent = async (req,res,next) => {
 }
 
 exports.removeStudent = async (req,res,next) => {
-  const {id} = req.query;
+  const {id,username} = req.query;
   await Student.findOneAndDelete({_id: id})
+  await Score.deleteMany({username})
+  await Cognitive.deleteMany({username})
+  await Payment.deleteMany({username})
+  await TermResult.deleteMany({username})
+  await SessionResult.deleteMany({username})
   res.json({success: true, message: `student with the id ${id} has been removed`})
 }
 
