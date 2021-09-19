@@ -153,30 +153,78 @@ if(termAndSession[0].termNumber === 3) {
         session: termAndSession[0].session.year 
     })
     
+    console.log('this is term averere',termAverages)
+
     // calculate session average based on term averages
-    const termAverage1 = termAverages[0].average === undefined ? 0 : termAverages[0].average
-    const termAverage2 = termAverages[1].average === undefined ? 0 : termAverages[1].average
-    const termAverage3 = termAverages[2].average === undefined ? 0 : termAverages[2].average
-    // calculate how many term results the student have
-    // const divisor1 = termAverages[0].average === undefined ? 0 : 1
-    // const divisor2 = termAverages[1].average === undefined ? 0 : 1
-    // const divisor3 = termAverages[2].average === undefined ? 0 : 1
-    // const divisor = divisor1 + divisor2 + divisor3
-    const sessionAverage = (termAverage1 + termAverage2 + termAverage3)/3
 
-    // calculate student status based on average
-    const status = sessionAverage >= 40 ? 'Promoted' : 'Demoted'
+    const lengthOfAverages = termAverages.length
+    console.log(lengthOfAverages)
+    if (lengthOfAverages == 1){
+        const termAverage1 = termAverages[0].average === undefined ? 0 : termAverages[0].average
+        // calculate how many term results the student have
+    
+        const sessionAverage = termAverage1/1
 
-    // save the result in the DB
-    await SessionResult.collection.update(
-      { username },
-      { average: sessionAverage,
-        status,
-        username,
-        session: termAndSession[0].session.year,
-        class: currentClass },
-        { upsert: true }) 
+        // calculate student status based on average
+        const status = sessionAverage >= 40 ? 'Promoted' : 'Demoted'
 
+        // save the result in the DB
+        await SessionResult.collection.update(
+        { username },
+        { average: sessionAverage,
+            status,
+            username,
+            session: termAndSession[0].session.year,
+            class: currentClass },
+            { upsert: true }) 
+
+    }else if (lengthOfAverages == 2){
+        const termAverage1 = termAverages[0].average === undefined ? 0 : termAverages[0].average
+        const termAverage2 = termAverages[1].average === undefined ? 0 : termAverages[1].average
+
+        // calculate how many term results the student have
+        
+        const sessionAverage = (termAverage1 + termAverage2)/2
+
+        // calculate student status based on average
+        const status = sessionAverage >= 40 ? 'Promoted' : 'Demoted'
+
+        // save the result in the DB
+        await SessionResult.collection.update(
+        { username },
+        { average: sessionAverage,
+            status,
+            username,
+            session: termAndSession[0].session.year,
+            class: currentClass },
+            { upsert: true }) 
+
+    }else {
+        const termAverage1 = termAverages[0].average === undefined ? 0 : termAverages[0].average
+        const termAverage2 = termAverages[1].average === undefined ? 0 : termAverages[1].average
+        const termAverage3 = termAverages[2].average === undefined ? 0 : termAverages[2].average
+
+        // calculate how many term results the student have
+        
+        const sessionAverage = (termAverage1 + termAverage2 + termAverage3)/3
+
+        // calculate student status based on average
+        const status = sessionAverage >= 40 ? 'Promoted' : 'Demoted'
+
+        // save the result in the DB
+        await SessionResult.collection.update(
+        { username },
+        { average: sessionAverage,
+            status,
+            username,
+            session: termAndSession[0].session.year,
+            class: currentClass },
+            { upsert: true }) 
+
+    }
+    
+
+    
     // CALCULATE POSITION FOR STUDENTS IN THE CLASS
     // get the session results for the students in the class
     const sessionRecords = await SessionResult.find(
