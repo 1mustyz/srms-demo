@@ -44,6 +44,8 @@ exports.loginStaff = (req, res, next) => {
       })
     })(req, res, next)
   }
+
+
 // reset password by staff
 exports.resetPassword = async (req, res, next) => {
   try {
@@ -55,6 +57,8 @@ exports.resetPassword = async (req, res, next) => {
       res.json({ message: 'something went wrong', error })
   }
 }
+
+
 // reset password for staff by admin
 exports.adminResetStaffPassword = async (req, res, next) => {
   try {
@@ -66,6 +70,8 @@ exports.adminResetStaffPassword = async (req, res, next) => {
       res.json({ message: 'something went wrong', error })
   }
 }
+
+
 exports.findAllStaff = async (req,res, next) => {
 
   const result = await Staff.find({});
@@ -108,13 +114,7 @@ exports.singleStaff = async (req,res, next) => {
    : res.json({success: false, message: result,})
 }
 
-// exports.findAllStudents = async (req,res, next) => {
 
-//   const result = await Student.find({role: 'student'});
-//   result.length > 0
-//    ? res.json({success: true, message: result,})
-//    : res.json({success: false, message: 'no student added yet',})
-// }
 
 exports.setProfilePic = async (req,res, next) => {
 
@@ -148,11 +148,12 @@ exports.setRole = async (req,res,next) => {
 
   // console.log( teach)
 
+  // check if staff has role 
   result[0].role.includes(role)
    ? ''
    : await Staff.findByIdAndUpdate(req.query.id,{$push: {"role": role}})
 
- 
+ // if staff dosent have a role
 if (role == "None"){
     await Staff.findByIdAndUpdate(req.query.id,{$set: {"role": [], "teach": [], "classTeacher": []}})
   }else if (role == "subjectTeacher" || role.includes('subjectTeacher')){

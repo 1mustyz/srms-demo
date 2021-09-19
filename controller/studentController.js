@@ -11,7 +11,6 @@ const TermResult = require('../models/TermResult');
 const Payment = require('../models/Payment');
 const Assignment = require('../models/Assignment');
 const SessionResult = require('../models/SessionResult')
-// const connectEnsureLogin = require('connect-ensure-login')
 
 // student registration controller
 exports.registerStudent = async function (req, res, next) {
@@ -90,6 +89,7 @@ exports.registerStudent = async function (req, res, next) {
 
       await Score.collection.insertMany(studentSubjects)
       await Cognitive.collection.insertOne(cognitiveData)
+
       await TermResult.collection.insertOne({
         studentId: user._id,
         username: user.username,
@@ -98,6 +98,9 @@ exports.registerStudent = async function (req, res, next) {
         term: termAndSession[0].termNumber,
         session: termAndSession[0].session.year,
       })
+
+      
+
       await Payment.collection.insertOne({
         studentId: user._id,
         username: user.username,

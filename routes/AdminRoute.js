@@ -2,7 +2,6 @@ const router = require('express').Router();
 const staffController = require('../controller/staffController');
 const logoutController = require('../controller/logoutController')
 const paymentController = require('../controller/paymentController');
-const { isStaffLoggedIn } = require('../middlewares/auth');
 const studentController = require('../controller/studentController')
 const curriculumController = require('../controller/curriculumController');
 const subjectController = require('../controller/subjectController');
@@ -92,16 +91,6 @@ router.get('/get-a-class-result', studentController.getAclassResult)
 router.get('/get-single-student-result', studentController.getAsingleStudentResult)
 router.get('/get-all-teachers-priviledge', examOfficerController.getTeachersPriviledge)
 
-router.get('/downloaddd', assignmentController.downloadAssignment);
-
-router.get('/download-pdf', function (req, res, next) {
-    res.contentType("application/pdf")
-    const {filePath} = req.query; // Or format the path using the `id` rest param
-    const fileName = "Assignment.pdf"; // The default name the browser will use
-
-    const myfile=res.download(filePath, fileName);  
-    res.json(myfile)  
-});
 router.delete('/remove-student', studentController.removeStudent)
 router.delete('/delete-single-curriculum', curriculumController.deleteSingleCurriculum)
 router.delete('/delete-all-curriculum', curriculumController.deleteAllCurriculum)

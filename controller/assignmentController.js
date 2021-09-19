@@ -5,6 +5,7 @@ const {singleFileUpload} = require('../middlewares/filesMiddleware');
 const Staff = require('../models/Staff');
 const cloudinary = require('cloudinary');
 
+// cloudinary configuration for saving files
 cloudinary.config({
     cloud_name: 'mustyz',
     api_key: '727865786596545',
@@ -15,6 +16,7 @@ exports.createAssignmentText = async (req,res,next) => {
     const {username,staffId,firstName,lastName,className,category,head,text,subject} = req.body
     const termAndSession = await TermSetter.find()
     const d = new Date()
+
     await Assignment.findByIdAndUpdate(req.body.id, {
         username: username,
         staffId: staffId,
@@ -27,7 +29,7 @@ exports.createAssignmentText = async (req,res,next) => {
         head: head,
         text: text,
         subject,
-        date: d.getFullYear(),
+        date: d.getDate(),
         created_at: d.getDate()
     })
     res.json({success: true, message: `assignment created for class ${req.body.className}`})
@@ -48,6 +50,7 @@ exports.createAssignmentFile = async (req,res,next) => {
         }
         if(req.file){
             console.log(req.file.path)
+
             cloudinary.v2.uploader.upload(req.file.path, 
                 { resource_type: "raw" }, 
             async function(error, result) {
@@ -76,6 +79,7 @@ exports.getAllAssignmentAdmin = async (req,res,next) => {
     const result = await Assignment.find()
     let currentDate = new Date()
     
+    // make uploade assignment to expire after 7 days
     result.forEach(async (ass) => {
         const expiryDate = new Date()
         expiryDate.setDate(parseInt(ass.created_at) + 7)
@@ -92,6 +96,7 @@ exports.getAllAssignmentForTeacher = async (req,res,next) => {
     const result = await Assignment.find({class: className, category: category})
     let currentDate = new Date()
     
+    // make uploade assignment to expire after 7 days
     result.forEach(async (ass) => {
         const expiryDate = new Date()
         expiryDate.setDate(parseInt(ass.created_at) + 7)
@@ -102,11 +107,3 @@ exports.getAllAssignmentForTeacher = async (req,res,next) => {
     
 }
 
-exports.downloadAssignment =  (req, res, next) => {
-    res.contentType("application/pdf")
-    const {filePath,fileName} = req.query;
-     // Or format the path using the `id` rest param
-     // The default name the browser will use
-
-    res.download(filePath, fileName);    
-}

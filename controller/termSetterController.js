@@ -7,7 +7,6 @@ const SessionResult = require('../models/SessionResult')
 const Payment = require('../models/Payment');
 const Cognitive = require('../models/Cognigtive');
 const AddSession = require('../models/AddSession')
-const waait = require('waait')
 
 exports.setNewTerm = async (req,res,next) => {
 
@@ -44,22 +43,16 @@ exports.setNewTerm = async (req,res,next) => {
     let subjects = await Curriculum.find({ })
     
     students.forEach( async (student) => {
-        // find student class and subjects
-        // const studentSubjects = subjects.filter( currentELement => {
-        //    return currentELement.name === student.currentClass &&
-        //     currentELement.category === student.category
-        // })
 
+        // get the student subject
         const studentSubjects = await Curriculum.find(
             { 'name': student.currentClass, 'category': student.category},
             { 'subject': 1, _id: 0})
      
 
         const termAndSession = await TermSetter.find()
-        // create score document for each student's subject
-        console.log('1111111111111111111',studentSubjects,student.username)
-        // console.log('----------------',students)
 
+        // create score document for each student's subject
         const scoreDocuments = studentSubjects[0].subject.map(async (subject) => {
            
                await Score.collection.insertOne({
@@ -172,59 +165,7 @@ exports.setSession = async (req,res,next) => {
         || student.currentClass !=='Playclass'
         || student.currentClass !=='Daycare')
 
-    // console.log(juniors)    
-
-   await juniors.forEach( async (junior) => {
-        const termAverages = await TermResult.find({
-              username: junior.username,
-              session: termAndSession[0].session.year 
-            })
-            const termAverage1 = termAverages[0].average === undefined ? 0 : termAverages[0].average
-            const termAverage2 = termAverages[1].average === undefined ? 0 : termAverages[1].average
-            const termAverage3 = termAverages[2].average === undefined ? 0 : termAverages[2].average
-            const average = (termAverage1 + termAverage2 + termAverage3)/3
-            
-            // const position1 = termAverages[0].position === undefined ? 0 : parseInt(termAverages[0].position)
-            // const position2 = termAverages[1].position === undefined ? 0 : parseInt(termAverages[1].position)
-            // const position3 = termAverages[2].position === undefined ? 0 : parseInt(termAverages[2].position)
-
-            // const position = (position1 + position2 + position3)/3
-            // console.log(position)
-            
-        const status = average >= 40 ? 'Promoted' : 'Demoted'
-    await SessionResult.collection.insertOne({
-            average,
-            status,
-            username: junior.username,
-            session: termAndSession[0].session.year,
-            class: junior.currentClass,
-        }) 
-        
-        
-    })
-
-const sessionRecords = await SessionResult.find(
-    {session: termAndSession[0].session.year},
-    {average: 1, username: 1})
-// console.log(sessionRecords)
-    
-sessionRecords.sort((a,b) => {
-    return b.total - a.total 
-})  
-const currentSessionPosition = sessionRecords.map((students,ind)=>{
-    return studentIdentity={
-        id:students.id,
-        position:ind+1,
-        username: students.username
-    }
-        
-}) 
-
-currentSessionPosition.map( async (students,ind)=>{
-    await SessionResult.findByIdAndUpdate(students.id, {position: students.position})
-})   
-
-console.log(currentSessionPosition)
+        // incrementing promoted student className and classNumber
     setTimeout(() => {
         (async function(){
             const promotedStudents = await SessionResult.find({
@@ -279,10 +220,7 @@ console.log(currentSessionPosition)
 
    
     setTimeout(async () => {
-        // // update student model, to reflect new class for promoted students
-
-    
-
+        // // create all the necessary records for the promoted student
     
     // // update session here 
     const {session} = req.body
@@ -376,9 +314,6 @@ console.log(currentSessionPosition)
             session: newTermAndSession[0].session.year,
         })
     })
-
-    
-
 
 
 

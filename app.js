@@ -18,18 +18,21 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+app.use(cors())
 
-// mongodb+srv://1mustyz:z08135696959@project1.ynhhl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
+// mongodb+srv://niaportal:nia@2020@niaportal.jk5s1.mongodb.net/myFirstDatabase?retryWrites=true&w=majority
 app.use(expressSession({
   secret: '[credentials.secret]',
   store: MongoStore.create({
-    mongoUrl: 'mongodb+srv://niaportal:nia@2020@cluster0.ehoaz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+    mongoUrl: 'mongodb+srv://1mustyz:z08135696959@project1.ynhhl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
     ttl: 14 * 24 * 60 * 60,
     autoRemove: 'native',
   }),
   saveUninitialized: false,
+  cookie: { maxAge: 1 * 60 * 60 * 1000 },
   resave: true
 }))
+
 
 const studentRouter = require('./routes/studentRoute')
 const staffRouter = require('./routes/staffRoute')
@@ -39,7 +42,7 @@ const teacherRouter = require('./routes/teacherRoute')
 // mongodb://localhost:27017/newsrms
 
 // //connect to db
-mongoose.connect('mongodb+srv://niaportal:nia@2020@cluster0.ehoaz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
+mongoose.connect('mongodb+srv://1mustyz:z08135696959@project1.ynhhl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useCreateIndex: true
@@ -68,7 +71,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors())
+
 // app.use(multipart());
 
 

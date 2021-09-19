@@ -2,16 +2,17 @@ const Staff = require('../models/Staff')
 const Score = require('../models/Score')
 const TermResult = require('../models/TermResult')
 const TermSetter = require('../models/TermSetter')
+const SessionResult = require('../models/SessionResult')
+
 
 exports.fetchTeacherSubjects = async (req, res) => {
     const teacher = await Staff.findById(req.query.id)
     res.json({subjects: teacher.teach})
 }
 
-
 exports.fetchStudentsInClass = async (req, res) => {
     const termAndSession = await TermSetter.find()
-   const students = 
+    const students = 
        await Score.find({ 
         class: req.body.class,
         subject: req.body.subject,
@@ -20,7 +21,7 @@ exports.fetchStudentsInClass = async (req, res) => {
         term: termAndSession[0].termNumber
 
      })
-   res.json({ success: true, students })
+    res.json({ success: true, students })
 }
 
 exports.liveSaveResult = async (req, res) => {
@@ -30,10 +31,9 @@ exports.liveSaveResult = async (req, res) => {
     const currentClass = req.body.currentClass
     const subject = req.body.subject
     const category = req.body.category
-    const termAndSession = await TermSetter.find()
-    
-    
+    const termAndSession = await TermSetter.find() 
 
+    // update the score field sent from front end
     const score = await Score.findByIdAndUpdate(req.body.id, {
         [field]: value
     }, {new: true, useFindAndModify: false})
@@ -76,9 +76,10 @@ exports.liveSaveResult = async (req, res) => {
     }, {new: true, useFindAndModify: false})
     // Souley's own end here 
 
-    const upScore = await Score.findById(req.body.id)
+
 
     //  calculate position for a specific subject
+
     const allStudentScoreInAClass = await Score.find(
         {
             class: currentClass, 
@@ -109,6 +110,10 @@ console.log('--------------', allStudentScoreInAClass)
     })    
     console.log('/////////////////////',currentSubjectPosition)
 
+    // End of calculating subject position in a class
+
+
+    // calculating student term position in class 
     const allStudentTotal = await Score.find({
         username: username,
         term: termAndSession[0].termNumber,
@@ -131,39 +136,79 @@ console.log('--------------', allStudentScoreInAClass)
 
     },{
         total: sumTotal, average: average
-    })
-        
-    const allStudentInAclass = await TermResult.find({
-        class: currentClass,
-        term: termAndSession[0].termNumber,
-        session: termAndSession[0].session.year
+    })  
 
-          // TODO set term to current term
-    },{
-        average: 1
-    })
+// end of calculating student term result
 
-    allStudentInAclass.sort((a,b) => {
-        return b.average - a.average 
+const upScore3 = await Score.findById(req.body.id)
+    
+/* START OF SESSION RESULT CALCULATION */
+
+// check if the term is third term 
+if(termAndSession[0].termNumber === 3) {
+
+    // get student term results
+    const termAverages = await TermResult.find({
+        username,
+        session: termAndSession[0].session.year 
     })
     
- const currentPosition = allStudentInAclass.map((students,ind)=>{
-        return studentIdentity={
-           average:students.average,
-           id:students.id,
-           position:ind+1
-        }
-        
-    })
-    const finalResult = currentPosition.map( async (students,ind)=>{
-       return  kkk = await TermResult.findByIdAndUpdate(students.id, {position: students.position})
-    })
-            // console.log(finalResult)
-    const upScore3 = await Score.findById(req.body.id)
+    // calculate session average based on term averages
+    const termAverage1 = termAverages[0].average === undefined ? 0 : termAverages[0].average
+    const termAverage2 = termAverages[1].average === undefined ? 0 : termAverages[1].average
+    const termAverage3 = termAverages[2].average === undefined ? 0 : termAverages[2].average
+    // calculate how many term results the student have
+    const divisor1 = termAverages[0].average === undefined ? 0 : 1
+    const divisor2 = termAverages[1].average === undefined ? 0 : 1
+    const divisor3 = termAverages[2].average === undefined ? 0 : 1
+    const divisor = divisor1 + divisor2 + divisor3
+    const sessionAverage = (termAverage1 + termAverage2 + termAverage3)/divisor
 
-            res.json({ success: true, upScore3})   
+    // calculate student status based on average
+    const status = sessionAverage >= 40 ? 'Promoted' : 'Demoted'
+
+    // save the result in the DB
+    await SessionResult.collection.update(
+      { username },
+      { average: sessionAverage,
+        status,
+        username,
+        session: termAndSession[0].session.year,
+        class: currentClass },
+        { upsert: true }) 
+
+    // CALCULATE POSITION FOR STUDENTS IN THE CLASS
+    // get the session results for the students in the class
+    const sessionRecords = await SessionResult.find(
+      { session: termAndSession[0].session.year, class: currentClass },
+      { average: 1, username: 1 })
+    
+    // sort the results
+    sessionRecords.sort((a,b) => {
+    return b.average - a.average 
+}) 
+
+    // giving positions to students by adding 1 to index
+    const currentSessionPosition = sessionRecords.map((students,ind)=>{
+    return studentIdentity={
+        id:students.id,
+        position:ind+1,
+        username: students.username
+    }
+})
+    // enter the students result in DB
+    currentSessionPosition.map( async (students,ind)=>{
+    await SessionResult.findByIdAndUpdate(students.id, { position: students.position })
+}) 
+    res.json({ success: true, upScore3}) 
+}
+/* END OF SESSION RESULT CALCULATION */
+
+
+    res.json({ success: true, upScore3})   
 }
 
+// update teacher priviledge on result
 exports.finalSubmision = async (req,res,next) => {
     const {submitButton, value, id} = req.body
 
@@ -174,47 +219,4 @@ exports.finalSubmision = async (req,res,next) => {
     res.json({success: true, message: `you have submitted ${submitButton}`})
 
 } 
-
-// exports.saveAndContinue = async (req, res) => {
-//     const input = req.body
-//     let bulkArr = [];
-
-//     for (const i of input) {
-//         bulkArr.push({
-//             updateOne: {
-//                 "filter": { "_id": i._id },
-//                 "update": { 
-//                      ca1: i.ca1, ca2: i.ca2,
-//                      ca3: i.ca3, exam: i.exam }
-//             }
-//         })
-//     }
-
-//     const scores = await Score.bulkWrite(bulkArr)
-//     res.json({ success: true, scores })
-
-// }
-
-// exports.finalSaveResult = async (req, res) => {
-//     const input = req.body
-//     let bulkArr = [];
-
-//     for (const i of input) {
-//         bulkArr.push({
-//             updateOne: {
-//                 "filter": { "_id": i._id },
-//                 "update": { 
-//                     ca1: i.ca1, ca2: i.ca2,
-//                     ca3: i.ca3, exam: i.exam, 
-//                     finalSubmitted: true }
-//             }
-//         })
-//     }
-
-//     const scores = await Score.bulkWrite(bulkArr)
-//     res.json({ success: true, scores })
-// }
-
-// todo 
-// insertMany({condition}, {isFinalSubmitted: true})
 

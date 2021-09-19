@@ -1,5 +1,6 @@
 const Staff = require('../models/Staff')
 const Student = require('../models/Student')
+const TermSetter = require('../models/TermSetter');
 
 
 exports.staffIdGenerator = async (req,res,next) => {
@@ -24,24 +25,27 @@ exports.staffIdGenerator = async (req,res,next) => {
 
 exports.studentIdGenerator = async (req,res,next) => {
     // 1. check if there are staff
-    const d = new Date()
+    const dd = await TermSetter.find({},{'session.year': 1})
+    const d = dd[0].session.year
+    console.log('------------',d)
     const getStudent = await Student.find()
     // 2. if no staff first id is admin
-    const fullYear = d.getFullYear().toString().split('')
+    const fullYear = d.toString().split('')
     const splitYear = `${fullYear[2]}${fullYear[3]}`
     if (getStudent.length < 1) req.body.username = `NIA/${splitYear}/001`
     else{
         // 3. if there are staffs get the last id and icrement by one
         const lastStudent = await Student.find().sort({createdAt: -1}).limit(1)
+        console.log(lastStudent)
         
         let zeros
         const id = lastStudent[0].username.split('/')
-        // console.log(id[3],zeros)
+        console.log(id[3],zeros)
 
-        const fullYear = d.getFullYear().toString().split('')
+        const fullYear = d.toString().split('')
         const splitYear = `${fullYear[2]}${fullYear[3]}`
         
-        req.body.username = `NIA/${splitYear}/${zeros = id[2] < 10  && parseInt(id[2]) + 1 < 10 ? '00': id[2] >= 99 ? '':'0'}${parseInt(id[2]) + 1 }`
+        req.body.username = `NIA/${splitYear}/${zeros = id[2] < 10  && parseInt(id[2]) + 1 < 10 ? '00': id[2] >= 100 ? '':'0'}${parseInt(id[2]) + 1 }`
     }
     console.log(req.body.username)  
     
