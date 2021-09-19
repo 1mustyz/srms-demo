@@ -40,7 +40,6 @@ exports.liveSaveResult = async (req, res) => {
     
     // // get total by adding all ca and exam value if they exist
     const ca1 = score.ca1 === undefined ? 0 : score.ca1
-    console.log('this is ca1',ca1)
     const ca2 = score.ca2 === undefined ? 0 : score.ca2
     const ca3 = score.ca3 === undefined ? 0 : score.ca3
     const ca4 = score.ca4 === undefined ? 0 : score.ca4
@@ -106,10 +105,10 @@ console.log('--------------', allStudentScoreInAClass)
     })    
 
     currentSubjectPosition.map( async (students,ind)=>{
-        // console.log('hhhhhhhhhh',students.id, students.position)
+        console.log('hhhhhhhhhh',students.id, students.position)
         await Score.findByIdAndUpdate(students.id, {subjectPosition: students.position})
     })    
-    // console.log('/////////////////////',currentSubjectPosition)
+    console.log('/////////////////////',currentSubjectPosition)
 
     // End of calculating subject position in a class
 
@@ -122,13 +121,13 @@ console.log('--------------', allStudentScoreInAClass)
         },{total: 1})
     
     // console.log(termAndSession[0])    
-    // console.log(allStudentTotal)
+    console.log(allStudentTotal)
     let sumTotal = allStudentTotal.reduce((a,b)=> (+a +  +b.total),0 )
     
     // console.log('+++++++++++++++++', sumTotal)
     let noOfCourses = allStudentTotal.length;
     let average = sumTotal/noOfCourses
-    // console.log(average,sumTotal,noOfCourses)
+    console.log(average,sumTotal,noOfCourses)
     
     await TermResult.findOneAndUpdate({
         username: req.body.username,
@@ -159,12 +158,11 @@ if(termAndSession[0].termNumber === 3) {
     const termAverage2 = termAverages[1].average === undefined ? 0 : termAverages[1].average
     const termAverage3 = termAverages[2].average === undefined ? 0 : termAverages[2].average
     // calculate how many term results the student have
-    console.log('this is term avrege',termAverages[0])
-    // const divisor1 = termAverages[0].average === undefined ? 0 : 1
-    // const divisor2 = termAverages[1].average === undefined ? 0 : 1
-    // const divisor3 = termAverages[2].average === undefined ? 0 : 1
-    // const divisor = divisor1 + divisor2 + divisor3
-    const sessionAverage = (termAverage1 + termAverage2 + termAverage3)/3
+    const divisor1 = termAverages[0].average === undefined ? 0 : 1
+    const divisor2 = termAverages[1].average === undefined ? 0 : 1
+    const divisor3 = termAverages[2].average === undefined ? 0 : 1
+    const divisor = divisor1 + divisor2 + divisor3
+    const sessionAverage = (termAverage1 + termAverage2 + termAverage3)/divisor
 
     // calculate student status based on average
     const status = sessionAverage >= 40 ? 'Promoted' : 'Demoted'
