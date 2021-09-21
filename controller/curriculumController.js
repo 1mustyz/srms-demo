@@ -46,7 +46,7 @@ exports.create = async (req,res,next) => {
                         studentId: std._id,
                         class: std.currentClass,
                         category: std.category,
-                        firsttName: std.firsttName,
+                        firstName: std.firstName,
                         lastName: std.lastName,
                         term: currentSession[0].termNumber,
                         session: currentSession[0].session.year
