@@ -1,17 +1,18 @@
-const router = require('express').Router();
-const staffController = require('../controller/staffController');
+const router = require('express').Router()
+const staffController = require('../controller/staffController')
 const logoutController = require('../controller/logoutController')
-const paymentController = require('../controller/paymentController');
+const paymentController = require('../controller/paymentController')
 const studentController = require('../controller/studentController')
-const curriculumController = require('../controller/curriculumController');
-const subjectController = require('../controller/subjectController');
+const curriculumController = require('../controller/curriculumController')
+const subjectController = require('../controller/subjectController')
 const classController = require('../controller/classController')
 const termSetterController = require('../controller/termSetterController')
-const cognitiveController = require('../controller/cognitiveController');
+const cognitiveController = require('../controller/cognitiveController')
 const assignmentController = require('../controller/assignmentController')
 const idGenerator = require('../middlewares/idGenerator')
 const teacherController = require('../controller/teacherController')
 const examOfficerController = require('../controller/examOfficeController')
+const setNewTerm = require('../controller/setNewTerm')
 
 router.post('/register-staff', idGenerator.staffIdGenerator, staffController.registerStaff)
 router.post('/register-student', idGenerator.studentIdGenerator, studentController.registerStudent)
@@ -23,24 +24,25 @@ router.post('/reset-staff-password/:id', staffController.adminResetStaffPassword
 router.post('/logout', logoutController.logout)
 router.post('/add-payment', paymentController.addPaymentTypes)
 router.post('/add-curriculum', curriculumController.create)
-router.post('/create-subject',  subjectController.create)
+router.post('/create-subject', subjectController.create)
 router.post('/create-class', classController.create)
-router.post('/verify-payment', paymentController.verifyPayment);
-router.post('/set-new-term',termSetterController.setNewTerm)
-router.post('/set-new-session',termSetterController.setSession)
+router.post('/verify-payment', paymentController.verifyPayment)
+router.post('/set-new-term', termSetterController.setNewTerm)
+router.post('/set-session-only', termSetterController.setSessionOnly)
+router.post('/set-new-session', termSetterController.setSession)
 router.post('/add-new-cognitive-item', cognitiveController.addNewCognitive)
 
 // admin set his profile
-router.put('/set-profile-pic', staffController.setProfilePic);
+router.put('/set-profile-pic', staffController.setProfilePic)
 
 // set role for staff
-router.put('/set-role', staffController.setRole);
+router.put('/set-role', staffController.setRole)
 
 router.put('/add-student-cognitive', cognitiveController.createStudentCognitive)
 router.put('/update-payment', paymentController.updatePaymentTypes)
 
-router.put('/update-single-student-profile', studentController.updateSingleStudent);
-router.put('/update-single-curriculum', curriculumController.updateSingleCurriculum);
+router.put('/update-single-student-profile', studentController.updateSingleStudent)
+router.put('/update-single-curriculum', curriculumController.updateSingleCurriculum)
 router.put('/update-single-subject', subjectController.update)
 router.put('/update-class', classController.update)
 router.put('/update-cognitive-item', cognitiveController.updateAddNewCognitive)
@@ -48,32 +50,40 @@ router.put('/edit-staff', staffController.editStaff)
 router.put('/edit-student', studentController.editStudent)
 router.put('/final-submission', teacherController.finalSubmision)
 router.put('/allow-submission-priviledge', examOfficerController.allowPriviledge)
-router.put('/suspend-a-student', studentController.suspendAstudent);
+router.put('/suspend-a-student', studentController.suspendAstudent)
+router.put('/update-std-score-firstName', subjectController.updateStdScoreFirstName)
 
+// *****************************************************************************************************
+// The code below is very sensitive make sure you understand it before using it
+router.put('/promote-a-class', studentController.promoteOrDemoteAclass)
+
+// *****************************************************************************************************
+// The code below is very sensitive make sure you understand it before using it
+router.put('/promote-a-student', studentController.promoteOrDemoteAstudent)
 
 router.get('/get-all-curriculum', curriculumController.getAllCurriculum)
 router.get('/get-all-admin-curriculum', curriculumController.getAdminAllCurriculum)
 
 router.get('/get-single-curriculum', curriculumController.getSingleCurriculum)
 router.get('/dashboard', staffController.statistics)
-router.get('/get-payment-type', paymentController.getPayment);
-router.get('/get-all-paid-student', paymentController.getAllPaidStudent);
-router.get('/get-all-un-paid-student', paymentController.getAllUnPaidStudent);
-router.get('/get-all-teachers', staffController.findAllTeachers);
-router.get('/get-all-principal', staffController.findAllPrincipal);
-router.get('/get-all-staff', staffController.findAllStaff);
-router.get('/get-all-student', studentController.findAllStudent);
+router.get('/get-payment-type', paymentController.getPayment)
+router.get('/get-all-paid-student', paymentController.getAllPaidStudent)
+router.get('/get-all-un-paid-student', paymentController.getAllUnPaidStudent)
+router.get('/get-all-teachers', staffController.findAllTeachers)
+router.get('/get-all-principal', staffController.findAllPrincipal)
+router.get('/get-all-staff', staffController.findAllStaff)
+router.get('/get-all-student', studentController.findAllStudent)
 
 router.get('/get-all-student-according-to-section',
- studentController.findAllStudentAccordinToSection);
+  studentController.findAllStudentAccordinToSection)
 
- router.get('/get-all-student-according-to-class-category',
- studentController.findAllStudentAccordinToClassAndCategory);
+router.get('/get-all-student-according-to-class-category',
+  studentController.findAllStudentAccordinToClassAndCategory)
 
-router.get('/get-paid-student-statistics',paymentController.getPaidAndUnPaidStudent) 
+router.get('/get-paid-student-statistics', paymentController.getPaidAndUnPaidStudent)
 router.get('/get-all-paid-and-un-paid-student', paymentController.getAllPaidAndUnPaidStudent)
 
-router.get('/get-single-student', studentController.findOneStudent);
+router.get('/get-single-student', studentController.findOneStudent)
 router.get('/get-all-subject', subjectController.getAllSubject)
 router.get('/get-all-classes', classController.getAllClasses)
 router.get('/get-every-class', classController.getEveryClass)
@@ -83,7 +93,7 @@ router.get('/get-current-session', termSetterController.getSession)
 router.get('/get-all-cognitive-item', cognitiveController.getAllAddNewCognitive)
 router.get('/get-all-student-cognitive', cognitiveController.getAllStudentCognitive)
 router.get('/get-all-teachers-assignment', assignmentController.getAllAssignmentAdmin)
-router.get('/get-add-session', termSetterController.getAddSession);
+router.get('/get-add-session', termSetterController.getAddSession)
 router.get('/get-single-staff', staffController.singleStaff)
 router.get('/get-class-curriculum', curriculumController.getClassCurriculum)
 
@@ -99,5 +109,21 @@ router.delete('/delete-class', classController.delete)
 router.delete('/remove-staff', staffController.removeStaff)
 router.delete('/delete-cognitive-item', cognitiveController.deleteAddNewCognitive)
 router.delete('/delete-subject', curriculumController.deleteSubject)
+router.delete('/delete-all-subject', subjectController.deleteAllSubject)
 
-module.exports = router;
+// *****************************************************************************************************
+// The code below is very sensitive make sure you understand it before using it
+router.delete('/delete-student-duplicate-from-score', curriculumController.deleteStudentDuplicateFromScore)
+
+// *****************************************************************************************************
+// The code below is very sensitive make sure you understand it before using it
+router.delete('/delete-all-student-present-term-result', termSetterController.deleteAllStudentPresentTermResult)
+
+// *****************************************************************************************************
+// The code below is very sensitive make sure you understand it before using it
+router.delete('/delete-score-subject', curriculumController.deleteSubjectFromScore)
+router.post('/create-term-result', setNewTerm.createTermResult)
+router.delete('/delete-term-result', setNewTerm.deleteTermResult)
+// router.put('/rename', examOfficerController.rename)
+
+module.exports = router

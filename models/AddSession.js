@@ -1,9 +1,8 @@
 const mongoose = require('mongoose')
-const { Schema, model} = mongoose
-
+const { Schema, model } = mongoose
 
 const AddSessionSchema = new Schema({
-    session: String
+  session: String
 })
 
 const AddSession = model('addSession', AddSessionSchema)
